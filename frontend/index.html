@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Greenhouse Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Dashboard Serra</h1>
+
+  <table id="sensorsTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Umidità</th>
+        <th>Stato</th>
+        <th>Threshold Min</th>
+        <th>Threshold Max</th>
+        <th>Azione</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Form configurazione -->
+  <div id="configPanel" class="hidden">
+    <h2>Configura sensore</h2>
+    <form id="configForm">
+      <input type="hidden" id="sensorId" />
+
+      <label>
+        Nome:
+        <input type="text" id="sensorName" />
+      </label>
+
+      <label>
+        Threshold Min:
+        <input type="number" id="thresholdMin" />
+      </label>
+
+      <label>
+        Threshold Max:
+        <input type="number" id="thresholdMax" />
+      </label>
+
+      <button type="submit">Salva</button>
+      <button type="button" id="cancelBtn">Annulla</button>
+    </form>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
