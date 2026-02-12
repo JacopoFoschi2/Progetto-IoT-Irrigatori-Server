@@ -1,7 +1,10 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import cors from "cors";
 import sensorsRoutes from "./api/routes/sensor-routes";
-import "./mqtt/mqttClient";
+import "./mqtt/mqtt-client";
 import path from "path";
 
 const app = express();
