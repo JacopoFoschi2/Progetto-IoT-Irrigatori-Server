@@ -1,4 +1,5 @@
 export interface Sensor {
+  id: number;
   mac: string;
   name: string | null;
   thresholdMin: number | null;
