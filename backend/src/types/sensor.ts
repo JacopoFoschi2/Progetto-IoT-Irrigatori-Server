@@ -1,9 +1,9 @@
 export interface Sensor {
-  id: string;
+  mac: string;
   name: string | null;
   thresholdMin: number | null;
   thresholdMax: number | null;
-  valves: number | null;
-  lastHumidity: number | null;
-  lastSeen: number | null;
+  pinHumidity: number | null;
+  pinPumps: number[] | null;
+  updateInterval: number | null;
 }
