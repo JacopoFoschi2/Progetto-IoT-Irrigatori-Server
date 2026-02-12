@@ -29,7 +29,9 @@ export function registerSensor(
   const stmt = db.prepare(`
     INSERT INTO sensors (id, valves, thresholdMin, thresholdMax, lastSeen)
     VALUES (?, ?, 70, 90, ?)
-    ON CONFLICT(id) DO NOTHING
+    ON CONFLICT(id) DO UPDATE SET
+    valves = excluded.valves,
+    lastSeen = excluded.lastSeen
   `);
 
   stmt.run(id, valves, Date.now());

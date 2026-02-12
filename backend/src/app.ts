@@ -13,8 +13,10 @@ app.use(express.json());
 app.use("/api/sensors", sensorsRoutes);
 
 // frontend statico
-app.use(express.static(path.join(__dirname, "../public")));
+app.use(express.static(path.join(process.cwd(), "public")));
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+}).on("error", (err) => {
+  console.error("Server error:", err);
 });
