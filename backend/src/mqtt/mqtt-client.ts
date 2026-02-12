@@ -4,6 +4,7 @@ import {
   upsertSensorStatus,
   getSensorById
 } from "../services/sensor-service";
+import { Sensor } from "../types/sensor";
 
 const MQTT_URL = process.env.MQTT_URL || "mqtt://localhost:1883";
 
@@ -20,15 +21,20 @@ client.on("connect", () => {
   client.subscribe("greenhouse/sensor/+/status");
 });
 
-client.on("error", (err) => {
+client.subscribe("greenhouse/sensor/+/hello", (err: any) => {
+  if (err) console.error("Subscribe error:", err);
+});
+
+client.on("error", (err: any) => {
   console.error("MQTT error:", err);
 });
 
-client.on("message", (topic, payload) => {
+client.on("message", (topic: string, payload: Buffer) => {
   try {
     const message = JSON.parse(payload.toString());
 
     const topicParts = topic.split("/");
+    if (topicParts.length !== 4) return;
     const sensorId = topicParts[2];
     const messageType = topicParts[3];
 
@@ -64,7 +70,7 @@ function handleStatus(sensorId: string, message: any) {
   upsertSensorStatus(sensorId, humidity);
 }
 
-export function publishConfig(sensorId: string, sensor: any) {
+export function publishConfig(sensorId: string, sensor: Sensor) {
   const topic = `greenhouse/sensor/${sensorId}/config`;
 
   const configPayload = {
