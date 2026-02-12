@@ -5,13 +5,16 @@ export default {
     return {
       sensors: [],
       showConfigPanel: false,
+      newPumpPin: null, // <-- nuovo: pin per nuova pompa
       currentSensor: {
         id: "",
         name: "",
         thresholdMin: null,
         thresholdMax: null,
       },
+      pumps: [], // <-- nuovo: pompe del sensore selezionato
       API_BASE: "/api/sensors",
+      API_PUMPS: "/api/pumps", // <-- nuovo
     };
   },
   methods: {
@@ -26,6 +29,33 @@ export default {
       if (!lastSeen) return false;
       const now = Date.now();
       return now - lastSeen < 5 * 60 * 1000;
+    },
+    // Recupera le pompe collegate a un sensore
+    fetchPumps(sensorId) {
+      fetch(`${this.API_PUMPS}/${sensorId}`)
+        .then(res => res.json())
+        .then(data => {
+          this.pumps = data;
+        });
+    },
+
+    // Aggiunge una pompa a un sensore
+    addPump(sensorId, pin) {
+      fetch(`${this.API_PUMPS}/${sensorId}/${pin}`, { method: "POST" })
+        .then(() => this.fetchPumps(sensorId));
+    },
+
+    // Rimuove una pompa da un sensore
+    removePump(sensorId, pin) {
+      fetch(`${this.API_PUMPS}/${sensorId}/${pin}`, { method: "DELETE" })
+        .then(() => this.fetchPumps(sensorId));
+    },
+
+    // Apri pannello config e carica le pompe
+    openConfig(sensor) {
+      this.currentSensor = { ...sensor };
+      this.showConfigPanel = true;
+      this.fetchPumps(sensor.id); // <-- nuovo: carica pompe
     },
     openConfig(sensor) {
       this.currentSensor = { ...sensor }; // copia i valori
@@ -114,6 +144,22 @@ export default {
         <button type="submit">Salva</button>
         <button type="button" @click="cancelConfig">Annulla</button>
       </form>
+      <!-- Se ci sono pompe, mostriamo la sezione di gestione -->
+      <div v-if="pumps.length > 0" style="margin-top: 20px;">
+        <h3>Pompe collegate</h3>
+        <ul>
+          <li v-for="pump in pumps" :key="pump.pin">
+            Pompa Pin: {{ pump.pin }}
+            <button @click="removePump(currentSensor.id, pump.pin)">Rimuovi</button>
+          </li>
+        </ul>
+
+        <label>
+          Aggiungi Pompa (Pin):
+          <input type="number" v-model.number="newPumpPin" />
+          <button type="button" @click="addPump(currentSensor.id, newPumpPin)">Aggiungi</button>
+        </label>
+      </div>
     </div>
   </div>
 </template>
