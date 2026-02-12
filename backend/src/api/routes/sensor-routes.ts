@@ -1,10 +1,18 @@
 import { Router } from "express";
-import { getSensors, testInsert, updateConfig } from "../controllers/sensor-controller";
+import {
+  getAllSensors,
+  getSensor,
+  addSensor,
+  updateSensor,
+  deleteSensor
+} from "../controllers/sensor-controller";
 
 const router = Router();
 
-router.get("/", getSensors);
-router.post("/test", testInsert);
-router.post("/:id/config", updateConfig);
+router.get("/sensors", getAllSensors);
+router.get("/sensors/:id", getSensor);
+router.post("/sensors", addSensor);
+router.put("/sensors/:id", updateSensor);
+router.delete("/sensors/:id", deleteSensor);
 
 export default router;
