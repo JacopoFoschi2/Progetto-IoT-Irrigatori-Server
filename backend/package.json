@@ -5,7 +5,7 @@
   "license": "ISC",
   "author": "Jacopo Foschi",
   "type": "commonjs",
-  "main": "app.js",
+  "main": "dist/app.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "build": "tsc",
