@@ -18,12 +18,3 @@ export function getPumpsOfSensor(req: Request, res: Response) {
     res.status(500).json({ error: err.message });
   }
 }
-
-export function removePumpFromSensor(req: Request, res: Response) {
-    try {
-        db.prepare("DELETE FROM sensor_pumps WHERE id = ? AND pin = ?").run(req.params.id, req.params.pin);
-        res.json({ message: "Pump removed from sensor" });
-    } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-}
