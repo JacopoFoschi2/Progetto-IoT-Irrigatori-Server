@@ -8,13 +8,14 @@
   "main": "app.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
-  "build": "tsc",
-  "start": "node dist/app.js",
-  "all": "npm run build && npm run start"
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "all": "npm run build && npm run start"
   },
   "dependencies": {
     "better-sqlite3": "^12.6.2",
     "cors": "^2.8.6",
+    "dotenv": "^17.2.4",
     "express": "^5.2.1",
     "mqtt": "^5.15.0"
   },
