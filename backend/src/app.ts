@@ -1,25 +1,33 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import express from "express";
+import express, { Router } from "express";
 import cors from "cors";
-import sensorsRoutes from "./api/routes/sensor-routes";
-import "./mqtt/mqtt-client";
 import path from "path";
 
+import sensorRoutes from "./api/routes/sensor-routes";
+import pumpRoutes from "./api/routes/pump-routes";
+import { controlValve } from "./api/controllers/valve-controller";
+
+// Avvia connessione MQTT (side effect)
+import "./mqtt/mqtt-client";
+
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/sensors", sensorsRoutes);
+// API routes
+app.use("/api", sensorRoutes);
+app.use("/api", pumpRoutes);
+app.post("/api/sensors/:id/valve", controlValve);
 
-// frontend statico
+// Frontend statico
 app.use(express.static(path.join(process.cwd(), "public")));
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🌿 Greenhouse server running on http://localhost:${PORT}`);
 }).on("error", (err) => {
   console.error("Server error:", err);
 });
