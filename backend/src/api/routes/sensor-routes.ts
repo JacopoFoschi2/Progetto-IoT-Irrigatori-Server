@@ -2,7 +2,7 @@ import { Router } from "express";
 import {
   getAllSensors,
   getSensor,
-  updateSensor
+  updateSensor,
 } from "../controllers/sensor-controller";
 
 const router = Router();
