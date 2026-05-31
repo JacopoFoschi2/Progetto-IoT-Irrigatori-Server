@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import express, { Router } from "express";
+import express from "express";
 import cors from "cors";
 import path from "path";
 
@@ -27,7 +27,7 @@ app.post("/api/sensors/:id/valve", controlValve);
 app.use(express.static(path.join(process.cwd(), "public")));
 
 app.listen(PORT, () => {
-  console.log(`🌿 Greenhouse server running on http://localhost:${PORT}`);
+  console.log(`Greenhouse server running on http://localhost:${PORT}`);
 }).on("error", (err) => {
   console.error("Server error:", err);
 });
