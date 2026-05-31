@@ -5,6 +5,11 @@ export interface Sensor {
   thresholdMin: number | null;
   thresholdMax: number | null;
   pinHumidity: number | null;
-  pinPumps: number[] | null;
   updateInterval: number | null;
+}
+
+export interface SensorWithState extends Sensor {
+  humidity: number | null;
+  valves: boolean[];
+  lastSeen: number | null;
 }
