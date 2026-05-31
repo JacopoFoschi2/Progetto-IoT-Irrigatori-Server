@@ -1,13 +1,955 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Serra — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0e1210;
+      --surface: #161c18;
+      --surface2: #1d2620;
+      --border: #2a3530;
+      --green: #4ade80;
+      --green-dim: #22543d;
+      --green-glow: rgba(74, 222, 128, 0.12);
+      --red: #f87171;
+      --red-dim: #7f1d1d;
+      --yellow: #fbbf24;
+      --text: #e2ece6;
+      --text-dim: #6b8c78;
+      --text-muted: #3d5248;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+      --radius: 6px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--green-glow);
+      border: 1px solid var(--green-dim);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .logo-text {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--text);
+      text-transform: uppercase;
+    }
+
+    .logo-sub {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+    }
+
+    .header-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ── Main ── */
+    main {
+      padding: 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    /* ── Sensor grid ── */
+    .sensor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .sensor-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: border-color 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sensor-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--green-dim);
+      transition: background 0.3s;
+    }
+
+    .sensor-card.online::before {
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+
+    .sensor-card:hover {
+      border-color: var(--green-dim);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .sensor-name {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .sensor-mac {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .status-badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+
+    .status-badge.online {
+      background: var(--green-dim);
+      color: var(--green);
+    }
+
+    .status-badge.offline {
+      background: var(--red-dim);
+      color: var(--red);
+    }
+
+    /* ── Humidity gauge ── */
+    .humidity-section {
+      margin-bottom: 16px;
+    }
+
+    .humidity-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    .humidity-value {
+      font-family: var(--mono);
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--green);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .humidity-value.unknown {
+      color: var(--text-muted);
+      font-size: 18px;
+    }
+
+    .gauge-track {
+      height: 4px;
+      background: var(--surface2);
+      border-radius: 2px;
+      position: relative;
+      overflow: visible;
+    }
+
+    .gauge-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--green);
+      transition: width 0.5s ease;
+      position: relative;
+    }
+
+    .gauge-fill.warning {
+      background: var(--yellow);
+    }
+
+    .gauge-fill.critical {
+      background: var(--red);
+    }
+
+    /* Threshold markers */
+    .gauge-marker {
+      position: absolute;
+      top: -4px;
+      width: 2px;
+      height: 12px;
+      background: var(--text-muted);
+      border-radius: 1px;
+      transform: translateX(-50%);
+    }
+
+    .gauge-marker.min { background: var(--red); }
+    .gauge-marker.max { background: var(--green); }
+
+    .threshold-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    /* ── Valves ── */
+    .valves-section {
+      margin-bottom: 16px;
+    }
+
+    .valves-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    .valves-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .valve-chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .valve-chip.active {
+      border-color: var(--green-dim);
+      background: var(--green-glow);
+      color: var(--green);
+    }
+
+    .valve-chip:hover {
+      border-color: var(--text-muted);
+    }
+
+    .valve-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+
+    .valve-chip.active .valve-dot {
+      background: var(--green);
+      box-shadow: 0 0 5px var(--green);
+    }
+
+    .no-valves {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ── Card footer ── */
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .last-seen {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .btn-config {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-config:hover {
+      border-color: var(--green-dim);
+      color: var(--green);
+      background: var(--green-glow);
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      color: var(--text-muted);
+    }
+
+    .empty-state-icon { font-size: 32px; margin-bottom: 12px; }
+    .empty-state-title { font-family: var(--mono); font-size: 13px; margin-bottom: 6px; color: var(--text-dim); }
+    .empty-state-sub { font-size: 12px; }
+
+    /* ── Modal overlay ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 100%;
+      max-width: 480px;
+      margin: 20px;
+      animation: slideUp 0.2s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(16px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .modal-mac {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .btn-close {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 18px;
+      padding: 4px;
+      line-height: 1;
+    }
+
+    .btn-close:hover { color: var(--text); }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .form-input:focus {
+      border-color: var(--green-dim);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 20px 0;
+    }
+
+    /* ── Pompe nel modal ── */
+    .pump-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .pump-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .btn-remove {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      transition: all 0.15s;
+    }
+
+    .btn-remove:hover {
+      background: var(--red-dim);
+      color: var(--red);
+    }
+
+    .add-pump-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .add-pump-row .form-input {
+      flex: 1;
+    }
+
+    .btn-add {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 9px 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--green-dim);
+      background: var(--green-glow);
+      color: var(--green);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .btn-add:hover {
+      background: rgba(74, 222, 128, 0.2);
+    }
+
+    .empty-pumps {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 12px;
+    }
+
+    /* ── Modal footer ── */
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-cancel {
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 9px 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-cancel:hover { border-color: var(--text-muted); color: var(--text); }
+
+    .btn-save {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 9px 20px;
+      border-radius: var(--radius);
+      border: 1px solid var(--green-dim);
+      background: var(--green-glow);
+      color: var(--green);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-save:hover {
+      background: rgba(74, 222, 128, 0.2);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--surface);
+      border: 1px solid var(--green-dim);
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      z-index: 300;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.2s;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🌿</div>
+    <div>
+      <div class="logo-text">Greenhouse</div>
+      <div class="logo-sub">Sistema di Irrigazione</div>
+    </div>
+  </div>
+  <div class="header-status">
+    <div class="dot"></div>
+    <span id="headerStatus">connesso</span>
+  </div>
+</header>
+
+<main>
+  <div class="section-label">Sensori attivi</div>
+  <div class="sensor-grid" id="sensorGrid">
+    <div class="empty-state">
+      <div class="empty-state-icon">📡</div>
+      <div class="empty-state-title">In attesa di sensori...</div>
+      <div class="empty-state-sub">I sensori compariranno qui non appena si connettono</div>
+    </div>
+  </div>
+</main>
+
+<!-- Modal configurazione -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalTitle">Configura sensore</div>
+        <div class="modal-mac" id="modalMac"></div>
+      </div>
+      <button class="btn-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="modalSensorId" />
+
+      <div class="form-group">
+        <label class="form-label" for="inputName">Nome sensore</label>
+        <input class="form-input" id="inputName" type="text" placeholder="es. Zona A — Pomodori" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="inputPinHumidity">Pin sensore umidità</label>
+        <input class="form-input" id="inputPinHumidity" type="number" placeholder="es. A0" />
+      </div>
+
+      <div class="form-group">
+        <div class="form-row">
+          <div>
+            <label class="form-label" for="inputMin">Soglia MIN (attiva)</label>
+            <input class="form-input" id="inputMin" type="number" min="0" max="100" placeholder="es. 30" />
+          </div>
+          <div>
+            <label class="form-label" for="inputMax">Soglia MAX (disattiva)</label>
+            <input class="form-input" id="inputMax" type="number" min="0" max="100" placeholder="es. 70" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="inputInterval">Intervallo aggiornamento (secondi)</label>
+        <input class="form-input" id="inputInterval" type="number" min="10" placeholder="es. 60" />
+      </div>
+
+      <hr class="divider" />
+
+      <div class="form-group">
+        <label class="form-label">Pompe collegate</label>
+        <div class="pump-list" id="pumpList">
+          <div class="empty-pumps">Nessuna pompa configurata</div>
+        </div>
+        <div class="add-pump-row">
+          <input class="form-input" id="newPumpPin" type="number" placeholder="Pin pompa (es. 7)" />
+          <button class="btn-add" onclick="addPump()">+ Aggiungi</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Annulla</button>
+      <button class="btn-save" onclick="saveConfig()">Salva configurazione</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const API = '/api';
+  let sensors = [];
+  let currentSensorId = null;
+  let pumps = [];
+
+  // ── Fetch sensori e aggiorna la griglia ──
+  async function fetchSensors() {
+    try {
+      const res = await fetch(`${API}/sensors`);
+      sensors = await res.json();
+      renderGrid();
+    } catch (e) {
+      console.error('Errore fetch sensori:', e);
+    }
+  }
+
+  function isOnline(lastSeen) {
+    if (!lastSeen) return false;
+    return Date.now() - lastSeen < 5 * 60 * 1000;
+  }
+
+  function timeAgo(ts) {
+    if (!ts) return '—';
+    const diff = Math.floor((Date.now() - ts) / 1000);
+    if (diff < 60) return `${diff}s fa`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m fa`;
+    return `${Math.floor(diff / 3600)}h fa`;
+  }
+
+  function gaugeColor(val, min, max) {
+    if (val === null || val === undefined) return '';
+    if (min !== null && val < min) return 'critical';
+    if (max !== null && val > max) return '';
+    return 'warning';
+  }
+
+  function renderGrid() {
+    const grid = document.getElementById('sensorGrid');
+
+    if (!sensors.length) {
+      grid.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📡</div>
+          <div class="empty-state-title">In attesa di sensori...</div>
+          <div class="empty-state-sub">I sensori compariranno qui non appena si connettono</div>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = sensors.map(s => {
+      const online = isOnline(s.lastSeen);
+      const hum = s.humidity;
+      const humDisplay = hum !== null && hum !== undefined ? `${hum}%` : null;
+      const gaugeWidth = hum !== null && hum !== undefined ? Math.min(100, Math.max(0, hum)) : 0;
+
+      const minPct = s.thresholdMin !== null ? s.thresholdMin : null;
+      const maxPct = s.thresholdMax !== null ? s.thresholdMax : null;
+
+      const color = (hum !== null && minPct !== null && hum < minPct) ? 'critical'
+                  : (hum !== null && maxPct !== null && hum > maxPct) ? ''
+                  : 'warning';
+
+      const valves = s.valves || [];
+
+      const valvesHtml = valves.length
+        ? valves.map((active, i) => `
+            <div class="valve-chip ${active ? 'active' : ''}" onclick="toggleValve(${s.id}, '${s.mac}', ${i}, ${active})">
+              <div class="valve-dot"></div>
+              V${i + 1}
+            </div>`).join('')
+        : '<span class="no-valves">nessuna valvola</span>';
+
+      return `
+        <div class="sensor-card ${online ? 'online' : ''}">
+          <div class="card-header">
+            <div>
+              <div class="sensor-name">${s.name || 'Sensore senza nome'}</div>
+              <div class="sensor-mac">${s.mac}</div>
+            </div>
+            <div class="status-badge ${online ? 'online' : 'offline'}">${online ? 'online' : 'offline'}</div>
+          </div>
+
+          <div class="humidity-section">
+            <div class="humidity-label">Umidità suolo</div>
+            ${humDisplay
+              ? `<div class="humidity-value">${humDisplay}</div>`
+              : `<div class="humidity-value unknown">—</div>`
+            }
+            <div class="gauge-track">
+              <div class="gauge-fill ${color}" style="width:${gaugeWidth}%"></div>
+              ${minPct !== null ? `<div class="gauge-marker min" style="left:${minPct}%"></div>` : ''}
+              ${maxPct !== null ? `<div class="gauge-marker max" style="left:${maxPct}%"></div>` : ''}
+            </div>
+            <div class="threshold-row">
+              <span>${minPct !== null ? `min ${minPct}%` : '—'}</span>
+              <span>${maxPct !== null ? `max ${maxPct}%` : '—'}</span>
+            </div>
+          </div>
+
+          <div class="valves-section">
+            <div class="valves-label">Valvole</div>
+            <div class="valves-row">${valvesHtml}</div>
+          </div>
+
+          <div class="card-footer">
+            <span class="last-seen">ultimo aggiornamento: ${timeAgo(s.lastSeen)}</span>
+            <button class="btn-config" onclick="openModal(${s.id})">⚙ Configura</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Toggle valvola manuale ──
+  async function toggleValve(sensorId, mac, valveIndex, currentState) {
+    try {
+      await fetch(`${API}/sensors/${sensorId}/valve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ valve: valveIndex, state: !currentState })
+      });
+      showToast(`Valvola V${valveIndex + 1} ${!currentState ? 'aperta' : 'chiusa'}`);
+      await fetchSensors();
+    } catch (e) {
+      showToast('Errore invio comando valvola');
+    }
+  }
+
+  // ── Modal config ──
+  async function openModal(sensorId) {
+    currentSensorId = sensorId;
+    const s = sensors.find(x => x.id === sensorId);
+    if (!s) return;
+
+    document.getElementById('modalTitle').textContent = s.name || 'Configura sensore';
+    document.getElementById('modalMac').textContent = s.mac;
+    document.getElementById('modalSensorId').value = s.id;
+    document.getElementById('inputName').value = s.name || '';
+    document.getElementById('inputPinHumidity').value = s.pinHumidity ?? '';
+    document.getElementById('inputMin').value = s.thresholdMin ?? '';
+    document.getElementById('inputMax').value = s.thresholdMax ?? '';
+    document.getElementById('inputInterval').value = s.updateInterval ?? '';
+
+    await fetchPumps(sensorId);
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    currentSensorId = null;
+    pumps = [];
+  }
+
+  async function saveConfig() {
+    const id = currentSensorId;
+    const body = {
+      name: document.getElementById('inputName').value,
+      pinHumidity: parseInt(document.getElementById('inputPinHumidity').value) || null,
+      thresholdMin: parseInt(document.getElementById('inputMin').value) || null,
+      thresholdMax: parseInt(document.getElementById('inputMax').value) || null,
+      updateInterval: parseInt(document.getElementById('inputInterval').value) || null,
+    };
+
+    try {
+      await fetch(`${API}/sensors/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      showToast('Configurazione salvata e inviata al sensore');
+      closeModal();
+      fetchSensors();
+    } catch (e) {
+      showToast('Errore nel salvataggio');
+    }
+  }
+
+  // ── Pompe ──
+  async function fetchPumps(sensorId) {
+    const res = await fetch(`${API}/pumps/${sensorId}`);
+    pumps = await res.json();
+    renderPumps(sensorId);
+  }
+
+  function renderPumps(sensorId) {
+    const list = document.getElementById('pumpList');
+    if (!pumps.length) {
+      list.innerHTML = '<div class="empty-pumps">Nessuna pompa configurata</div>';
+      return;
+    }
+    list.innerHTML = pumps.map(p => `
+      <div class="pump-item">
+        <span>🔌 Pin ${p.pin}</span>
+        <button class="btn-remove" onclick="removePump(${sensorId}, ${p.pin})" title="Rimuovi">✕</button>
+      </div>`).join('');
+  }
+
+  async function addPump() {
+    const pin = parseInt(document.getElementById('newPumpPin').value);
+    if (isNaN(pin)) { showToast('Inserisci un numero di pin valido'); return; }
+    await fetch(`${API}/pumps/${currentSensorId}/${pin}`, { method: 'POST' });
+    document.getElementById('newPumpPin').value = '';
+    await fetchPumps(currentSensorId);
+    showToast(`Pompa pin ${pin} aggiunta`);
+  }
+
+  async function removePump(sensorId, pin) {
+    await fetch(`${API}/pumps/${sensorId}/${pin}`, { method: 'DELETE' });
+    await fetchPumps(sensorId);
+    showToast(`Pompa pin ${pin} rimossa`);
+  }
+
+  // ── Toast ──
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  // ── Chiudi modal cliccando fuori ──
+  document.getElementById('modalOverlay').addEventListener('click', function (e) {
+    if (e.target === this) closeModal();
+  });
+
+  // ── Avvio ──
+  fetchSensors();
+  setInterval(fetchSensors, 5000);
+</script>
+</body>
 </html>
